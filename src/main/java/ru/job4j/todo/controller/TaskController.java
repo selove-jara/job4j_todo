@@ -5,8 +5,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
 import ru.job4j.todo.service.TaskService;
+import ru.job4j.todo.service.UserService;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +18,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class TaskController {
     private final TaskService taskService;
+    private final UserService userService;
 
     @GetMapping
     public String getAll(Model model) {
@@ -35,8 +39,10 @@ public class TaskController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Task task) {
-        taskService.save(task);
+    public String save(@ModelAttribute Task task, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        task.setUser(user);
+        taskService.save(task, user);
         return "redirect:/tasks";
     }
 
