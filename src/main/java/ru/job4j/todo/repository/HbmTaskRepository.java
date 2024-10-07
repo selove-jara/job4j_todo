@@ -4,139 +4,93 @@ import lombok.AllArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
 @AllArgsConstructor
 public class HbmTaskRepository implements TaskRepository {
-
-    private final SessionFactory sf;
+    private final CrudRepository crudRepository;
+    private static final Logger LOGGER = LoggerFactory.getLogger(HbmTaskRepository.class);
 
     @Override
     public Task save(Task task) {
-        Session session = sf.openSession();
         try {
-            session.beginTransaction();
-            session.save(task);
-            session.getTransaction().commit();
+            crudRepository.run(session -> session.persist(task));
+            return task;
         } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
+            LOGGER.error("Ошибка при сохранении задачи: {}", task, e);
+            return null;
         }
-        return task;
     }
 
     @Override
     public boolean update(Task task) {
-        boolean result = false;
-        Session session = sf.openSession();
         try {
-            session.beginTransaction();
-            session.update(task);
-            session.getTransaction().commit();
-            result = true;
+            return crudRepository.run(session -> session.merge(task));
         } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
+            LOGGER.error("Ошибка при обновлении задачи: {}", task, e);
+            return false;
         }
-        return result;
     }
 
     @Override
     public boolean delete(int id) {
-        boolean result = false;
-        Session session = sf.openSession();
         try {
-            session.beginTransaction();
-            Task task = new Task();
-            task.setId(id);
-            session.delete(task);
-            session.getTransaction().commit();
-            result = true;
+            return crudRepository.run(
+                    "delete from Task where id = :fId",
+                    Map.of("fId", id)
+            );
         } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
+            LOGGER.error("Ошибка при удалении задачи с id: {}", id, e);
+            return false;
         }
-        return result;
     }
 
     @Override
     public Optional<Task> findById(int id) {
-        Optional<Task> optionalTask = Optional.empty();
-        Session session = sf.openSession();
         try {
-            session.beginTransaction();
-            Query<Task> query = session.createQuery("from Task WHERE id = :fId", Task.class)
-                    .setParameter("fId", id);
-            optionalTask = query.uniqueResultOptional();
-            session.getTransaction().commit();
+            return crudRepository.optional("from Task WHERE id = :id", Task.class, Map.of("id", id));
         } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
+            LOGGER.error("Ошибка при поиске задачи с id: {}", id, e);
+            return Optional.empty();
         }
-        return optionalTask;
     }
 
     @Override
     public List<Task> findAllOrderById() {
-        List<Task> tasks = new ArrayList<>();
-        Session session = sf.openSession();
         try {
-            session.beginTransaction();
-            Query<Task> query = session.createQuery("from Task ORDER BY id", Task.class);
-            tasks = query.getResultList();
-            session.getTransaction().commit();
+            return crudRepository.query("from Task ORDER BY id", Task.class);
         } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
+            LOGGER.error("Ошибка при получении всех задач", e);
+            return List.of();
         }
-        return tasks;
     }
 
     @Override
     public List<Task> findByStatus(boolean status) {
-        List<Task> tasks = new ArrayList<>();
-        Session session = sf.openSession();
         try {
-            session.beginTransaction();
-            Query<Task> query = session.createQuery("from Task WHERE done = :fDone", Task.class)
-                    .setParameter("fDone", status);
-            tasks = query.getResultList();
-            session.getTransaction().commit();
+            return crudRepository.query("from Task WHERE done = :fDone", Task.class, Map.of("fDone", status));
         } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
+            LOGGER.error("Ошибка при поиске задач по статусу: {}", status, e);
+            return List.of();
         }
-        return tasks;
     }
 
     @Override
     public boolean complete(int id) {
-        Session session = sf.openSession();
-        boolean rsl = false;
         try {
-            session.beginTransaction();
-            session.createQuery("UPDATE Task SET done = true WHERE id = :fId")
-                    .setParameter("fId", id)
-                    .executeUpdate();
-            session.getTransaction().commit();
-            rsl = true;
+            return crudRepository.run("UPDATE Task SET done = true WHERE id = :fId", Map.of("fId", id));
         } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
+            LOGGER.error("Ошибка при завершении задачи с id: {}", id, e);
+            return false;
         }
-        return rsl;
     }
 }
