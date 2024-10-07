@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.service.TaskService;
 
@@ -42,41 +41,54 @@ public class TaskController {
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteTask(@PathVariable("id") int id) {
-        taskService.delete(id);
+    public String deleteTask(@PathVariable("id") int id, Model model) {
+        boolean rsl = taskService.delete(id);
+        if (!rsl) {
+            model.addAttribute("message", "Не удалось удалить задачу");
+            return "errors/404";
+        }
         return "redirect:/tasks";
     }
 
     @GetMapping("/{id}")
     public String getTask(@PathVariable("id") int id, Model model) {
         var task = taskService.findById(id);
+        if (task.isEmpty()) {
+            model.addAttribute("message", "Задача не найдена");
+            return "errors/404";
+        }
         model.addAttribute("task", task.get());
         return "tasks/one";
     }
 
     @PostMapping("/complete/{id}")
-    public String completeTask(@PathVariable("id") int id) {
-        Optional<Task> optionalTask = taskService.findById(id);
-        Task task = optionalTask.get();
-        task.setDone(true);
-        taskService.update(task);
+    public String completeTask(@PathVariable("id") int id, Model model) {
+        boolean rsl = taskService.complete(id);
+        if (!rsl) {
+            model.addAttribute("message", "Не удалось обновить задачу");
+            return "errors/404";
+        }
         return "redirect:/tasks/" + id;
     }
 
     @GetMapping("/edit/{id}")
     public String editTaskForm(@PathVariable("id") int id, Model model) {
         Optional<Task> optionalTask = taskService.findById(id);
+        if (optionalTask.isEmpty()) {
+            model.addAttribute("message", "Задача не найдена");
+            return "errors/404";
+        }
         model.addAttribute("task", optionalTask.get());
         return "tasks/edit";
     }
 
     @PostMapping("/edit/{id}")
-    public String editTask(@PathVariable("id") int id, @RequestParam String title, @RequestParam String description) {
-        Optional<Task> optionalTask = taskService.findById(id);
-        Task task = optionalTask.get();
-        task.setTitle(title);
-        task.setDescription(description);
-        taskService.update(task);
+    public String editTask(@ModelAttribute Task task, Model model) {
+        boolean rsl = taskService.update(task);
+        if (!rsl) {
+            model.addAttribute("message", "Не удалось обновить задачу");
+            return "errors/404";
+        }
         return "redirect:/tasks";
     }
 }

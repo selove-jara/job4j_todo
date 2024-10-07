@@ -33,21 +33,25 @@ public class HbmTaskRepository implements TaskRepository {
     }
 
     @Override
-    public void update(Task task) {
+    public boolean update(Task task) {
+        boolean result = false;
         Session session = sf.openSession();
         try {
             session.beginTransaction();
             session.update(task);
             session.getTransaction().commit();
+            result = true;
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
             session.close();
         }
+        return result;
     }
 
     @Override
-    public void delete(int id) {
+    public boolean delete(int id) {
+        boolean result = false;
         Session session = sf.openSession();
         try {
             session.beginTransaction();
@@ -55,11 +59,13 @@ public class HbmTaskRepository implements TaskRepository {
             task.setId(id);
             session.delete(task);
             session.getTransaction().commit();
+            result = true;
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
             session.close();
         }
+        return result;
     }
 
     @Override
@@ -113,5 +119,24 @@ public class HbmTaskRepository implements TaskRepository {
             session.close();
         }
         return tasks;
+    }
+
+    @Override
+    public boolean complete(int id) {
+        Session session = sf.openSession();
+        boolean rsl = false;
+        try {
+            session.beginTransaction();
+            session.createQuery("UPDATE Task SET done = true WHERE id = :fId")
+                    .setParameter("fId", id)
+                    .executeUpdate();
+            session.getTransaction().commit();
+            rsl = true;
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
+        return rsl;
     }
 }

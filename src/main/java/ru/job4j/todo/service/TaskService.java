@@ -8,14 +8,16 @@ import java.util.Optional;
 public interface  TaskService {
         Task save(Task task);
 
-        void update(Task task);
+        boolean update(Task task);
 
-        void delete(int id);
+        boolean delete(int id);
 
         Optional<Task> findById(int id);
 
         List<Task> findAllOrderById();
 
         List<Task> findByStatus(boolean status);
+
+        boolean complete(int id);
     }
 
