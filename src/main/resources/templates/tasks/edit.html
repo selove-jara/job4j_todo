@@ -22,6 +22,26 @@
                         <input type="text" id="title" name="title" class="form-control" th:value="${task.title}" required>
                     </div>
                     <div class="mb-3">
+                        <label for="done"><b>Статус задачи</b></label>
+                        <select class="form-control" id="done" name="done" required>
+                            <option value="" disabled selected>Выберите статус задачи</option>
+                            <option th:value=true>Выполнено</option>
+                            <option th:value=false>Новое</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="priority"><b>Приоритет</b></label>
+                        <select class="form-control" id="priority" name="priorityId" required>
+                            <option value="" disabled selected>Выберите приоритет</option>
+                            <option th:each="priority : ${priorities}"
+                                    th:value="${priority.id}"
+                                    th:text="${priority.name}"
+                                    th:selected="${priority.id == task.priority.id}"></option>
+                            ></option>
+
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label for="description" class="form-label">Описание</label>
                         <textarea id="description" name="description" class="form-control" rows="3" required
                                   th:text="${task.description}"></textarea>

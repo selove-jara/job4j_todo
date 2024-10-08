@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
 import ru.job4j.todo.service.UserService;
 
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class TaskController {
     private final TaskService taskService;
     private final UserService userService;
+    private final PriorityService priorityService;
 
     @GetMapping
     public String getAll(Model model) {
@@ -35,14 +38,17 @@ public class TaskController {
 
     @GetMapping("/create")
     public String getCreatePage(Model model) {
+        model.addAttribute("priorities", priorityService.findAllOrderById());
         return "tasks/create";
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Task task, HttpSession session) {
+    public String save(@ModelAttribute Task task, HttpSession session, int priorityId) {
         User user = (User) session.getAttribute("user");
+        Priority priority = priorityService.findById(priorityId).get();
         task.setUser(user);
-        taskService.save(task, user);
+        task.setPriority(priority);
+        taskService.save(task, user, priority);
         return "redirect:/tasks";
     }
 
@@ -80,16 +86,22 @@ public class TaskController {
     @GetMapping("/edit/{id}")
     public String editTaskForm(@PathVariable("id") int id, Model model) {
         Optional<Task> optionalTask = taskService.findById(id);
+        List<Priority> priorities = priorityService.findAllOrderById();
         if (optionalTask.isEmpty()) {
             model.addAttribute("message", "Задача не найдена");
             return "errors/404";
         }
         model.addAttribute("task", optionalTask.get());
+        model.addAttribute("priorities", priorities);
         return "tasks/edit";
     }
 
     @PostMapping("/edit/{id}")
-    public String editTask(@ModelAttribute Task task, Model model) {
+    public String editTask(@ModelAttribute Task task, Model model, HttpSession session, int priorityId) {
+        User user = (User) session.getAttribute("user");
+        Priority priority = priorityService.findById(priorityId).get();
+        task.setPriority(priority);
+        task.setUser(user);
         boolean rsl = taskService.update(task);
         if (!rsl) {
             model.addAttribute("message", "Не удалось обновить задачу");

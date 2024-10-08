@@ -35,6 +35,7 @@
                     <th scope="col">Название</th>
                     <th scope="col">Дата создания</th>
                     <th scope="col">Состояние</th>
+                    <th scope="col">Приоритет</th>
                     <th scope="col">Пользователь</th>
                 </tr>
                 </thead>
@@ -45,6 +46,7 @@
                     </td>
                     <td th:text="${#temporals.format(task.created, 'hh:mm:ss dd-MM-yyyy')}"></td>
                     <td th:text="${task.done}"></td>
+                    <td th:text="${task.priority.name}"></td>
                     <td th:text="${task.user.name}"></td>
                 </tr>
                 </tbody>

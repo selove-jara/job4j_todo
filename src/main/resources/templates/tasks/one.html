@@ -19,6 +19,7 @@
                 <p><strong>Название:</strong> <span th:text="${task.title}"></span></p>
                 <p><strong>Описание:</strong> <span th:text="${task.description}"></span></p>
                 <p><strong>Дата создания:</strong> <span th:text="${#temporals.format(task.created, 'hh:mm:ss dd-MM-yyyy')}"></span></p>
+                <p><strong>Приоретет:</strong> <span th:text="${task.priority.name}"></span></p>
                 <p><strong>Состояние:</strong> <span th:text="${task.done} ? 'Выполнено' : 'Новое'"></span></p>
 
                 <div class="text-end">
