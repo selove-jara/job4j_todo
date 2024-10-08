@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface  TaskService {
-        Task save(Task task, User user, Priority priority);
+        Task save(Task task, User user, Priority priority,  List<Integer> categoriesId);
 
         boolean update(Task task);
 

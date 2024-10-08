@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.service.CategoryService;
 import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
 import ru.job4j.todo.service.UserService;
@@ -20,7 +21,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class TaskController {
     private final TaskService taskService;
-    private final UserService userService;
+    private final CategoryService categoryService;
     private final PriorityService priorityService;
 
     @GetMapping
@@ -39,16 +40,17 @@ public class TaskController {
     @GetMapping("/create")
     public String getCreatePage(Model model) {
         model.addAttribute("priorities", priorityService.findAllOrderById());
+        model.addAttribute("categories", categoryService.findAllOrderById());
         return "tasks/create";
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute Task task, HttpSession session, int priorityId) {
+    public String save(@ModelAttribute Task task, HttpSession session, int priorityId, @RequestParam List<Integer> categoryId) {
         User user = (User) session.getAttribute("user");
         Priority priority = priorityService.findById(priorityId).get();
         task.setUser(user);
         task.setPriority(priority);
-        taskService.save(task, user, priority);
+        taskService.save(task, user, priority, categoryId);
         return "redirect:/tasks";
     }
 
@@ -102,6 +104,7 @@ public class TaskController {
         Priority priority = priorityService.findById(priorityId).get();
         task.setPriority(priority);
         task.setUser(user);
+
         boolean rsl = taskService.update(task);
         if (!rsl) {
             model.addAttribute("message", "Не удалось обновить задачу");

@@ -57,7 +57,7 @@ public class HbmTaskRepository implements TaskRepository {
     @Override
     public Optional<Task> findById(int id) {
         try {
-            return crudRepository.optional("from Task f JOIN FETCH f.priority WHERE f.id = :fId", Task.class, Map.of("fId", id));
+            return crudRepository.optional("from Task f JOIN FETCH f.priority JOIN FETCH f.categories WHERE f.id = :fId", Task.class, Map.of("fId", id));
         } catch (Exception e) {
             LOGGER.error("Ошибка при поиске задачи с id: {}", id, e);
             return Optional.empty();
@@ -67,7 +67,7 @@ public class HbmTaskRepository implements TaskRepository {
     @Override
     public List<Task> findAllOrderById() {
         try {
-            return crudRepository.query("from Task f JOIN FETCH f.priority ORDER BY f.id", Task.class);
+            return crudRepository.query("from Task f JOIN FETCH f.priority JOIN FETCH f.categories ORDER BY f.id", Task.class);
         } catch (Exception e) {
             LOGGER.error("Ошибка при получении всех задач", e);
             return List.of();

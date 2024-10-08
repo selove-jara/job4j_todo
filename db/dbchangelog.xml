@@ -10,4 +10,7 @@
     <include file="scripts/003_ddl_alter_table_tasks_add_userId.sql" relativeToChangelogFile="true"/>
     <include file="scripts/004_ddl_create_and_fill_table_priorities.sql" relativeToChangelogFile="true"/>
     <include file="scripts/005_dml_add_priority_to_tasks_and_update.sql" relativeToChangelogFile="true"/>
+    <include file="scripts/006_ddl_create_categories_table.sql" relativeToChangelogFile="true"/>
+    <include file="scripts/007_dml_insert_categories.sql" relativeToChangelogFile="true"/>
+    <include file="scripts/008_ddl_create_table_task_category.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>

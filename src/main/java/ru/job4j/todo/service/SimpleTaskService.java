@@ -2,6 +2,7 @@ package ru.job4j.todo.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
@@ -14,9 +15,12 @@ import java.util.Optional;
 @AllArgsConstructor
 public class SimpleTaskService implements TaskService {
     private final TaskRepository taskRepository;
+    private final CategoryService categoryService;
 
     @Override
-    public Task save(Task task, User user, Priority priority) {
+    public Task save(Task task, User user, Priority priority,  List<Integer> categoriesId) {
+        List<Category> categories = categoryService.findByListOfId(categoriesId);
+        task.setCategories(categories);
         return taskRepository.save(task);
     }
 

@@ -16,7 +16,7 @@ import java.util.Optional;
 public class HbmPriorityRepository implements PriorityRepository {
 
     private final CrudRepository crudRepository;
-    private static final Logger LOGGER = LoggerFactory.getLogger(HbmTaskRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HbmPriorityRepository.class);
 
     @Override
     public Optional<Priority> findById(int id) {
