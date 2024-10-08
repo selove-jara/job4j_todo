@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,17 +18,20 @@ import java.util.function.Function;
 @AllArgsConstructor
 public class CrudRepository {
     private final SessionFactory sf;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrudRepository.class);
 
     public boolean run(Consumer<Session> command) {
+        boolean rsl = false;
         try {
             tx(session -> {
                 command.accept(session);
                 return null;
             });
-            return true;
+            rsl = true;
         } catch (Exception e) {
-            return false;
+            LOGGER.error("An error occurred while running the command", e);
         }
+        return rsl;
     }
 
     public boolean run(String query, Map<String, Object> args) {
