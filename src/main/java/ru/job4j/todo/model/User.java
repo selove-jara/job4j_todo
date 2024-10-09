@@ -25,6 +25,9 @@ public class User {
 
     private String password;
 
+    @Column(name = "user_zone")
+    private String timezone;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
