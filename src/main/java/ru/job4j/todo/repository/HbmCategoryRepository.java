@@ -16,7 +16,7 @@ import java.util.Optional;
 public class HbmCategoryRepository implements CategoryRepository {
 
     private final CrudRepository crudRepository;
-    private static final Logger LOGGER = LoggerFactory.getLogger(HbmTaskRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HbmCategoryRepository.class);
 
     @Override
     public Optional<Category> findById(int id) {
